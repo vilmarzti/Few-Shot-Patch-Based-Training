@@ -1,4 +1,5 @@
 import os
+import multiprocessing as mp
 
 ################ MAKE CHANGES HERE #################
 inputDir = "input"              # path to the input sequence PNGs
@@ -8,6 +9,7 @@ flowFwdDir = "flow_fwd"         # path to the output forward flow files
 flowBwdDir = "flow_bwd"         # path to the output backward flow files
 FIRST = 1                       # number of the first PNG file in the input folder
 LAST = 109                      # number of the last PNG file in the input folder
+num_cores = mp.cpu_count()
 ####################################################
 
 
@@ -21,17 +23,25 @@ inputFiles = inputDir + "/" + inputFileFormat + "." + inputFileExt
 flwFwdFile = flowFwdDir + "/" + inputFileFormat + ".A2V2f"
 flwBwdFile = flowBwdDir + "/" + inputFileFormat + ".A2V2f"
 
+def create_commands(frame, fwd=True):
+  if fwd:
+    command = "disflow %s %s %s"%(inputFiles%(frame),inputFiles%(frame-frameStep),flwFwdFile%(frame)) 
+  else:
+    command = "disflow %s %s %s"%(inputFiles%(frame),inputFiles%(frame-frameStep),flwBwdFile%(frame)) 
+  return command
+
+pool = mp.Pool()
+
 firstFrame = FIRST+1
 lastFrame  = LAST
 frameStep  = +1
 
-for frame in range(firstFrame,lastFrame+frameStep,frameStep):
-  os.system("disflow %s %s %s"%(inputFiles%(frame),inputFiles%(frame-frameStep),flwFwdFile%(frame)))
+fwd_commands = [create_commands(frame) for frame in range(firstFrame, lastFrame + frameStep, frameStep)]
+pool.map(lambda x: os.system(x), fwd_commands)
 
 firstFrame = LAST-1
 lastFrame  = FIRST
 frameStep  = -1
 
-for frame in range(firstFrame,lastFrame+frameStep,frameStep):
-  os.system("disflow %s %s %s"%(inputFiles%(frame),inputFiles%(frame-frameStep),flwBwdFile%(frame)))
-
+bwd_commands = [create_commands(frame, False) for frame in range(firstFrame, lastFrame + frameStep, frameStep)]
+pool.map(lambda x: os.system(x), bwd_commands)

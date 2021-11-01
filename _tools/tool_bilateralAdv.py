@@ -12,19 +12,16 @@ frameLast = 109                     # number of the last PNG file in the input f
 num_cores = mp.cpu_count()
 ####################################################
 
-firstFrame = frameFirst
-lastFrame= frameLast  
-frameStep = +1
-
 os.makedirs(os.path.dirname(outputFormat),exist_ok=True)
 
 def create_command(frame):
   return "bilateralAdv.exe "+imageFormat+" "+flowFwdFormat+" "+flowBwdFormat+(" %d "%(frame))+" 15 16 "+(outputFormat%(frame))
 
-def execute_command(command):
-  os.system(command)
+firstFrame = frameFirst
+lastFrame= frameLast  
+frameStep = +1
 
 commands = [create_command(frame) for frame in range(firstFrame, lastFrame + frameStep, frameStep)]
 
 pool = mp.Pool(num_cores)
-pool.map(execute_command, commands)
+pool.map(lambda x: os.system(x), commands)
