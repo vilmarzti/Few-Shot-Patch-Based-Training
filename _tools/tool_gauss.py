@@ -1,4 +1,5 @@
 import os
+import multiprocessing as mp
 
 ################ MAKE CHANGES HERE #################
 inputFileFormat = "%03d"    # name of input files, e.g., %03d if files are named 001.png, 002.png
@@ -27,6 +28,10 @@ for mask in masks_list_dir:
     masks_str += mask.replace(".png", "").replace(".jpg", "")
     masks_str += " "
 
+pool = mp.Pool(2)
+commands = [
+    f"gauss.exe {maskFiles} {flowFwdFiles} {flowBwdFiles} {frameFirst} {frameLast} {len(masks_list_dir)} {masks_str} 10 10 {gdisko_gauss_r10_s10_files}",
+    f"gauss.exe {maskFiles} {flowFwdFiles} {flowBwdFiles} {frameFirst} {frameLast} {len(masks_list_dir)} {masks_str} 10 15 {gdisko_gauss_r10_s15_files}"
+]
 
-os.system(f"gauss.exe {maskFiles} {flowFwdFiles} {flowBwdFiles} {frameFirst} {frameLast} {len(masks_list_dir)} {masks_str} 10 10 {gdisko_gauss_r10_s10_files}")
-os.system(f"gauss.exe {maskFiles} {flowFwdFiles} {flowBwdFiles} {frameFirst} {frameLast} {len(masks_list_dir)} {masks_str} 10 15 {gdisko_gauss_r10_s15_files}")
+pool.map(lambda x: os.system(x), commands)
