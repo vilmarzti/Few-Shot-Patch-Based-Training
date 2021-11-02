@@ -37,11 +37,11 @@ lastFrame  = LAST
 frameStep  = +1
 
 fwd_commands = [create_commands(frame) for frame in range(firstFrame, lastFrame + frameStep, frameStep)]
-pool.map(lambda x: os.system(x), fwd_commands)
+pool.map(os.system, fwd_commands)
 
 firstFrame = LAST-1
 lastFrame  = FIRST
 frameStep  = -1
 
 bwd_commands = [create_commands(frame, False) for frame in range(firstFrame, lastFrame + frameStep, frameStep)]
-pool.map(lambda x: os.system(x), bwd_commands)
+pool.map(os.system, bwd_commands)

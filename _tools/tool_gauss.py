@@ -30,8 +30,11 @@ for mask in masks_list_dir:
 
 pool = mp.Pool(2)
 commands = [
-    f"gauss.exe {maskFiles} {flowFwdFiles} {flowBwdFiles} {frameFirst} {frameLast} {len(masks_list_dir)} {masks_str} 10 10 {gdisko_gauss_r10_s10_files}",
-    f"gauss.exe {maskFiles} {flowFwdFiles} {flowBwdFiles} {frameFirst} {frameLast} {len(masks_list_dir)} {masks_str} 10 15 {gdisko_gauss_r10_s15_files}"
+    f"./gauss/gauss {maskFiles} {flowFwdFiles} {flowBwdFiles} {frameFirst} {frameLast} {len(masks_list_dir)} {masks_str} 10 10 {gdisko_gauss_r10_s10_files}",
+    f"./gauss/gauss {maskFiles} {flowFwdFiles} {flowBwdFiles} {frameFirst} {frameLast} {len(masks_list_dir)} {masks_str} 10 15 {gdisko_gauss_r10_s15_files}"
 ]
 
-pool.map(lambda x: os.system(x), commands)
+def execute(command):
+    os.system(command)
+
+pool.map(os.system, commands)

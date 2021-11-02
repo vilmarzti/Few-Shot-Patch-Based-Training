@@ -24,4 +24,4 @@ frameStep = +1
 commands = [create_command(frame) for frame in range(firstFrame, lastFrame + frameStep, frameStep)]
 
 pool = mp.Pool(num_cores)
-pool.map(lambda x: os.system(x), commands)
+pool.map(os.system, commands)
