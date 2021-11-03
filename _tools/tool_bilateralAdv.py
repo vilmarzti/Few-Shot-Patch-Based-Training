@@ -15,7 +15,7 @@ num_cores = mp.cpu_count()
 os.makedirs(os.path.dirname(outputFormat),exist_ok=True)
 
 def create_command(frame):
-  return "bilateralAdv.exe "+imageFormat+" "+flowFwdFormat+" "+flowBwdFormat+(" %d "%(frame))+" 15 16 "+(outputFormat%(frame))
+  return "./bilateralAdv/bilateralAdv "+imageFormat+" "+flowFwdFormat+" "+flowBwdFormat+(" %d "%(frame))+" 15 16 "+(outputFormat%(frame))
 
 firstFrame = frameFirst
 lastFrame= frameLast  

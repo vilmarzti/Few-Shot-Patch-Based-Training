@@ -25,9 +25,9 @@ flwBwdFile = flowBwdDir + "/" + inputFileFormat + ".A2V2f"
 
 def create_commands(frame, fwd=True):
   if fwd:
-    command = "disflow %s %s %s"%(inputFiles%(frame),inputFiles%(frame-frameStep),flwFwdFile%(frame)) 
+    command = "./disflow/disflow %s %s %s"%(inputFiles%(frame),inputFiles%(frame-frameStep),flwFwdFile%(frame)) 
   else:
-    command = "disflow %s %s %s"%(inputFiles%(frame),inputFiles%(frame-frameStep),flwBwdFile%(frame)) 
+    command = "./disflow/disflow %s %s %s"%(inputFiles%(frame),inputFiles%(frame-frameStep),flwBwdFile%(frame)) 
   return command
 
 pool = mp.Pool()

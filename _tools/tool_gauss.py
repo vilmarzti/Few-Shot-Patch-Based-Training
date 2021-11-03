@@ -1,5 +1,4 @@
 import os
-import multiprocessing as mp
 
 ################ MAKE CHANGES HERE #################
 inputFileFormat = "%04d"    # name of input files, e.g., %03d if files are named 001.png, 002.png
@@ -8,7 +7,7 @@ maskFiles = maskDir + "/" + inputFileFormat + ".png"
 flowFwdFiles = "../TEST_DATA/bf_gen/flow_fwd" + "/" + inputFileFormat + ".A2V2f"  # path to the forward flow files (computed by _tools/disflow)
 flowBwdFiles = "../TEST_DATA/bf_gen/flow_bwd" + "/" + inputFileFormat + ".A2V2f"  # path to the backward flow files (computed by _tools/disflow)
 frameFirst = "0001"                  # name of the first PNG file in the input folder (without extension)
-frameLast = "1417"                   # number of the last PNG file in the input folder (without extension)
+frameLast = "0100"                   # number of the last PNG file in the input folder (without extension)
 gdisko_gauss_r10_s10_dir = "../TEST_DATA/bf_gen/input_gdisko_gauss_r10_s10"    # path to the result gauss r10 s10 sequence
 gdisko_gauss_r10_s15_dir = "../TEST_DATA/bf_gen/input_gdisko_gauss_r10_s15"    # path to the result gauss r10 s15 sequence
 gdisko_gauss_r10_s10_files = gdisko_gauss_r10_s10_dir + "/" + inputFileFormat + ".png" 
@@ -28,13 +27,10 @@ for mask in masks_list_dir:
     masks_str += mask.replace(".png", "").replace(".jpg", "")
     masks_str += " "
 
-pool = mp.Pool(2)
 commands = [
     f"./gauss/gauss {maskFiles} {flowFwdFiles} {flowBwdFiles} {frameFirst} {frameLast} {len(masks_list_dir)} {masks_str} 10 10 {gdisko_gauss_r10_s10_files}",
     f"./gauss/gauss {maskFiles} {flowFwdFiles} {flowBwdFiles} {frameFirst} {frameLast} {len(masks_list_dir)} {masks_str} 10 15 {gdisko_gauss_r10_s15_files}"
 ]
 
-def execute(command):
-    os.system(command)
-
-pool.map(os.system, commands)
+os.system(commands[0])
+os.system(commands[1])
