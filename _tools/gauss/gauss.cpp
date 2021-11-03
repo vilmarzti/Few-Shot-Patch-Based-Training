@@ -3,6 +3,7 @@
 
 #include "jzq.h"
 #include "imageio.h"
+#include "thread_pool.hpp"
 
 #define FOR(A,X,Y) for(int Y=0;Y<A.height();Y++) for(int X=0;X<A.width();X++)
 
@@ -59,13 +60,13 @@ A2V2f readFlow(const std::string& fileName)
   return F;
 }
 
-void drawPts(A2V3f& O,const V2i& size,const std::vector<V2f>& Ps,const float sigma)
+void drawPts(A2V3f& O,const V2i& size,const std::vector<V2f>& Ps,const float sigma, const std::vector<V3f>& colors)
 {  
   for(int i=0;i<Ps.size();i++)
   {
       const V2f p = Ps[i];
       const int r = 3*sigma;
-      const V3f color = V3f(rand()%255,rand()%255,rand()%255)/V3f(255,255,255);
+      const V3f color = colors[i];
       for (int y=p[1]-r;y<=p[1]+r;y++)
       for (int x=p[0]-r;x<=p[0]+r;x++)
 
@@ -118,10 +119,9 @@ int main(int argc,char** argv)
   printf("outputFormat:   %s\n",outputFormat);  
 
   Array2<std::vector<V2f>> pts(numKeys,frameLast+1);
+  int max_pts_size = 0;
 
   V2i sizeO;
-  //std::vector<V3f> colors(8192);
-  //for(int j=0;j<8192;j++) { colors[j] = V3f(rand()%255,rand()%255,rand()%255); }
 
   for(int k=0;k<keys.size();k++)
   {
@@ -134,6 +134,7 @@ int main(int argc,char** argv)
 
     pts(k,frameKey) = keyPs;
     //imwrite(drawPts(size(M),keyPs,colors,sigma),spf(outputFormat,frameKey));
+    max_pts_size = max_pts_size < keyPs.size() ? keyPs.size() : max_pts_size;
 
     if (frameLast>frameKey)
     {
@@ -160,18 +161,49 @@ int main(int argc,char** argv)
     }
   }
 
+  // create color scheme
+  std::vector<V3f> colors;
+  srand(420);
+  for (size_t i = 0; i < max_pts_size; i++)
+  {
+      colors.push_back(V3f(rand()%255,rand()%255,rand()%255)/V3f(255,255,255));
+  }
+
+  // This is the original single-threaded execution
+  /*
   for(int frame=frameFirst;frame<=frameLast;frame++)
   {    
     A2V3f O(sizeO);
     fill(&O,V3f(0,0,0));
     srand(1337);
+
     for(int k=keys.size()-1;k>=0;k--)
     {
       const int frameKey = keys[k];
-      drawPts(O,sizeO,pts(k,frame),sigma);
+      drawPts(O,sizeO,pts(k,frame),sigma, colors);
     }
     imwrite(O,spf(outputFormat,frame));
   }
+  */
 
+  // parallel outer loop
+  thread_pool pool;
+  pool.parallelize_loop(
+    frameFirst,
+    frameLast + 1,
+    [&](const size_t a, const size_t b){
+        for(int frame=a; frame<b; frame++){
+            A2V3f O(sizeO);
+            fill(&O,V3f(0,0,0));
+
+            for(int k=keys.size()-1;k>=0;k--)
+            {
+                drawPts(O,sizeO,pts(k,frame),sigma, colors);
+            }
+            imwrite(O,spf(outputFormat,frame));
+        }
+    }
+  );
+  
   return 1;
 }
