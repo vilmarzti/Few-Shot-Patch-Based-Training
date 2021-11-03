@@ -169,23 +169,6 @@ int main(int argc,char** argv)
       colors.push_back(V3f(rand()%255,rand()%255,rand()%255)/V3f(255,255,255));
   }
 
-  // This is the original single-threaded execution
-  /*
-  for(int frame=frameFirst;frame<=frameLast;frame++)
-  {    
-    A2V3f O(sizeO);
-    fill(&O,V3f(0,0,0));
-    srand(1337);
-
-    for(int k=keys.size()-1;k>=0;k--)
-    {
-      const int frameKey = keys[k];
-      drawPts(O,sizeO,pts(k,frame),sigma, colors);
-    }
-    imwrite(O,spf(outputFormat,frame));
-  }
-  */
-
   // parallel outer loop
   thread_pool pool;
   pool.parallelize_loop(
