@@ -646,6 +646,7 @@ extern "C"
 
 namespace jzq_detail
 {
+#ifdef _WIN32
   inline std::wstring utf8_to_wide(const std::string& str)
   {
     const unsigned int codePageUTF8 = 65001;
@@ -655,6 +656,7 @@ namespace jzq_detail
     wide_str.resize(size-1);
     return wide_str;
   }
+#endif
 }
 
 inline FILE* jzq_fopen(const char* filename,const char* mode)
