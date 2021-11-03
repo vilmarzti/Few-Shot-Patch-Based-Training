@@ -8,6 +8,25 @@
 
 #define FOR(A,X,Y) for(int Y=0;Y<A.height();Y++) for(int X=0;X<A.width();X++)
 
+// fast implementation of exp -> See http://www.spfrnd.de/posts/2018-03-10-fast-exponential.html
+template<typename Real, size_t degree, size_t i = 0>
+    struct Recursion {
+        static Real evaluate(Real x) {
+            constexpr Real c = 1.0 / static_cast<Real>(1u << degree);
+            x = Recursion<Real, degree, i + 1>::evaluate(x);
+            return x * x;
+        }
+    };
+
+template<typename Real, size_t degree>
+    struct Recursion<Real, degree, degree> {
+    static Real evaluate(Real x) {
+        constexpr Real c = 1.0 / static_cast<Real>(1u << degree);
+        x = 1.0 + c * x;
+        return x;
+    }
+};
+
 template<int N,typename T>
 Vec<N,T> sampleBilinear(const Array2<Vec<N,T>>& I,const V2f& x)
 {
@@ -73,7 +92,8 @@ void drawPts(A2V3f& O,const V2i& size,const std::vector<V2f>& Ps,const float sig
 
       if (x>=0 && x<O.width() && y>=0 && y<O.height())
       {         
-        O(x,y) = lerp(O(x,y),color, expf(-(SQR(float(x)-p[0])+SQR(float(y)-p[1]))/(sigma*sigma)));
+        float exponent = Recursion<float, 8>::evaluate(-(SQR(float(x)-p[0])+SQR(float(y)-p[1]))/(sigma*sigma));
+        O(x,y) = lerp(O(x,y),color, exponent);
       }
   }
 }
