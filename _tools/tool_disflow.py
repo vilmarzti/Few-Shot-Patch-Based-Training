@@ -2,7 +2,7 @@ import os
 import multiprocessing as mp
 
 ################ MAKE CHANGES HERE #################
-inputDir = "../TEST_DATA/bf_gen/input/"              # path to the input sequence PNGs
+inputDir = "/home/martin/Videos/ondrej_et_al/bf/bf_gen/input_filtered/"              # path to the input sequence PNGs
 inputFileFormat = "%04d"        # name of input files, e.g., %03d if files are named 001.png, 002.png
 inputFileExt = "png"            # extension of input files (without .), e.g., png, jpg
 flowFwdDir = "../TEST_DATA/bf_gen/flow_fwd"         # path to the output forward flow files

@@ -1,4 +1,5 @@
 #include <cmath>
+#include <math.h>
 #include <vector>
 
 #include "jzq.h"
@@ -72,7 +73,7 @@ void drawPts(A2V3f& O,const V2i& size,const std::vector<V2f>& Ps,const float sig
 
       if (x>=0 && x<O.width() && y>=0 && y<O.height())
       {         
-        O(x,y) = lerp(O(x,y),color,std::exp(-(SQR(float(x)-p[0])+SQR(float(y)-p[1]))/(sigma*sigma)));
+        O(x,y) = lerp(O(x,y),color, expf(-(SQR(float(x)-p[0])+SQR(float(y)-p[1]))/(sigma*sigma)));
       }
   }
 }
