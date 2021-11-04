@@ -164,7 +164,7 @@ int main(int argc,char** argv)
   // generate points in parallel
   pool.parallelize_loop(
       0,
-      keys.size() - 1,
+      keys.size(),
       [&](const int a, const int b){
           for(int i=a; i<b; i++){
             const int frameKey = keys[i];
