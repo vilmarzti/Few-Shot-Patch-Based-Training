@@ -32,5 +32,6 @@ commands = [
     f"./gauss/gauss {maskFiles} {flowFwdFiles} {flowBwdFiles} {frameFirst} {frameLast} {len(masks_list_dir)} {masks_str} 10 15 {gdisko_gauss_r10_s15_files}"
 ]
 
-os.system(commands[0])
-os.system(commands[1])
+if __name__ == "__main__":
+    os.system(commands[0])
+    os.system(commands[1])

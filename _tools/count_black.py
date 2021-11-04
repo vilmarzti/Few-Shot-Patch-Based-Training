@@ -13,7 +13,7 @@ def count_pixels(image_path):
     # Count the number of black pixels in an image provided an image path
     image = cv2.imread(image_path, 0)
     num_black = image.size - cv2.countNonZero(image)
-    return num_black
+    return num_black / image.size
 
 
 def go_through_images(folder_path):
@@ -33,6 +33,7 @@ def go_through_images(folder_path):
     # Output statistics
     plt.plot(num_blacks)
     plt.savefig("num_black.png")
+    return image_names[max_black], num_blacks[max_black]
 
 
 if __name__ == "__main__":
