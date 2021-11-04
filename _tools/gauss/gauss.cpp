@@ -4,11 +4,13 @@
 
 #include "jzq.h"
 #include "imageio.h"
+
+// library that enables threading with a thread-pool
 #include "thread_pool.hpp"
 
 #define FOR(A,X,Y) for(int Y=0;Y<A.height();Y++) for(int X=0;X<A.width();X++)
 
-// fast implementation of exp -> See http://www.spfrnd.de/posts/2018-03-10-fast-exponential.html
+// fast approximation of exp -> See http://www.spfrnd.de/posts/2018-03-10-fast-exponential.html
 template<typename Real, size_t degree, size_t i = 0>
     struct Recursion {
         static Real evaluate(Real x) {
@@ -82,19 +84,30 @@ A2V2f readFlow(const std::string& fileName)
 
 void drawPts(A2V3f& O,const V2i& size,const std::vector<V2f>& Ps,const float sigma, const std::vector<V3f>& colors)
 {  
-  for(int i=0;i<Ps.size();i++)
-  {
-      const V2f p = Ps[i];
-      const int r = 3*sigma;
-      const V3f color = colors[i];
-      for (int y=p[1]-r;y<=p[1]+r;y++)
-      for (int x=p[0]-r;x<=p[0]+r;x++)
+    for(int i=0;i<Ps.size();i++)
+    {
+        const V2f p = Ps[i];
+        const int r = 3*sigma;
+        const float *color = colors[i].v;
 
-      if (x>=0 && x<O.width() && y>=0 && y<O.height())
-      {         
-        float exponent = Recursion<float, 8>::evaluate(-(SQR(float(x)-p[0])+SQR(float(y)-p[1]))/(sigma*sigma));
-        O(x,y) = lerp(O(x,y),color, exponent);
-      }
+        for (int y=p[1]-r;y<=p[1]+r;y++)
+        for (int x=p[0]-r;x<=p[0]+r;x++)
+        if (x>=0 && x<O.width() && y>=0 && y<O.height())
+        {         
+            const int width = O.size()[0];
+            float *o_color = O.data()[x + y * width].v;
+
+            // approxmiation of exp()
+            // the range of the exponent for r = 3 * sigma is [-18, 0]
+            // and thus a recursion level of 6 should suffice (which leads to maximum error of 2e-9)
+            const float e_x = Recursion<float, 6>::evaluate(-(SQR(float(x)-p[0])+SQR(float(y)-p[1]))/(sigma*sigma));
+
+            // use floating-point fma for a small improvement of lerp
+            //O(x,y) = lerp(O(x,y),color, exponent);
+            o_color[0] = fmaf(e_x, color[0], fmaf(-e_x, o_color[0], o_color[0]));
+            o_color[1] = fmaf(e_x, color[1], fmaf(-e_x, o_color[1], o_color[1]));
+            o_color[2] = fmaf(e_x, color[2], fmaf(-e_x, o_color[2], o_color[2]));
+        }
   }
 }
 
@@ -144,6 +157,9 @@ int main(int argc,char** argv)
 
   V2i sizeO;
 
+   // Thread-Pool for parallel applications
+  thread_pool pool;
+
   for(int k=0;k<keys.size();k++)
   {
     const int frameKey = keys[k];
@@ -152,33 +168,45 @@ int main(int argc,char** argv)
     sizeO = size(M);
 
     const std::vector<V2f> keyPs = genPts(M,radius);    
-
     pts(k,frameKey) = keyPs;
-    //imwrite(drawPts(size(M),keyPs,colors,sigma),spf(outputFormat,frameKey));
+
+    // keep track of max pts size to fill it later with colors
     max_pts_size = max_pts_size < keyPs.size() ? keyPs.size() : max_pts_size;
 
     if (frameLast>frameKey)
     {
-      std::vector<V2f> Ps = keyPs;
-      for(int frame=frameKey+1;frame<=frameLast;frame++)
-      {
-        const A2V2f F = a2read<V2f>(spf(flowBwdFormat,frame-1));
-        for(int i=0;i<Ps.size();i++) { Ps[i] = Ps[i] + sampleBilinear(F,Ps[i]); }      
-        pts(k,frame) = Ps;
-        //imwrite(drawPts(size(M),Ps,colors,sigma),spf(outputFormat,frame));
-      }
+        // Note that the combination of k and frame is unique for each loop
+        pool.push_task([&](const int k,const int frameKey,const std::vector<V2f> &keyPs){
+            std::vector<V2f> Ps = keyPs;
+            for(int frame=frameKey+1;frame<=frameLast;frame++)
+            {
+                const A2V2f F = a2read<V2f>(spf(flowBwdFormat, frame - 1));
+                for(int i=0;i<Ps.size();i++) { Ps[i] = Ps[i] + sampleBilinear(F,Ps[i]); }      
+                pts(k,frame) = Ps;
+            }
+        },
+        k,
+        frameKey,
+        keyPs
+        );
     }
 
     if (frameFirst<frameKey)
     {
-      std::vector<V2f> Ps = keyPs;
-      for(int frame=frameKey-1;frame>=frameFirst;frame--)
-      {
-        const A2V2f F = a2read<V2f>(spf(flowFwdFormat,frame+1));
-        for(int i=0;i<Ps.size();i++) { Ps[i] = Ps[i] + sampleBilinear(F,Ps[i]); }      
-        pts(k,frame) = Ps;
-        //imwrite(drawPts(size(M),Ps,colors,sigma),spf(outputFormat,frame));
-      }
+        // Note that the combination of k and frame is unique for each loop
+        pool.push_task([&](const int k, const int framekey, const std::vector<V2f> &keyPs){
+            std::vector<V2f> Ps = keyPs;
+            for(int frame=frameKey-1;frame>=frameFirst;frame--)
+            {
+                const A2V2f F = a2read<V2f>(spf(flowFwdFormat, frame + 1));
+                for(int i=0;i<Ps.size();i++) { Ps[i] = Ps[i] + sampleBilinear(F,Ps[i]); }      
+                pts(k,frame) = Ps;
+            }
+        },
+        k,
+        frameKey,
+        keyPs
+        );
     }
   }
 
@@ -190,8 +218,9 @@ int main(int argc,char** argv)
       colors.push_back(V3f(rand()%255,rand()%255,rand()%255)/V3f(255,255,255));
   }
 
+  // wait for computation of loops to finish
+  pool.wait_for_tasks();
   // parallel outer loop
-  thread_pool pool;
   pool.parallelize_loop(
     frameFirst,
     frameLast + 1,
