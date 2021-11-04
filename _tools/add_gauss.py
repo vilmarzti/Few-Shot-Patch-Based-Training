@@ -8,15 +8,18 @@ def loop(threshold, s):
     t = 1.0
     threshold /= 100.0
 
-    # either s10 or s15
-    if(s==10):
-        command = tool_gauss.commands[0]
-        gauss_dir = tool_gauss.gdisko_gauss_r10_s10_dir
-    else:
-        command = tool_gauss.commands[1]
-        gauss_dir = tool_gauss.gdisko_gauss_r10_s15_dir
-
     while(t > threshold):
+        # create commands with new set of gauss images
+        commands = tool_gauss.create_commands()
+
+        # either s10 or s15
+        if(s==10):
+            command = commands[0]
+            gauss_dir = tool_gauss.gdisko_gauss_r10_s10_dir
+        else:
+            command = commands[1]
+            gauss_dir = tool_gauss.gdisko_gauss_r10_s15_dir
+
         # compute the gauss images
         os.system(command)
 

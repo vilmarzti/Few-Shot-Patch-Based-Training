@@ -14,24 +14,26 @@ gdisko_gauss_r10_s10_files = gdisko_gauss_r10_s10_dir + "/" + inputFileFormat + 
 gdisko_gauss_r10_s15_files = gdisko_gauss_r10_s15_dir + "/" + inputFileFormat + ".png" 
 ####################################################
 
+def create_commands():
+    if not os.path.exists(gdisko_gauss_r10_s10_dir):
+        os.mkdir(gdisko_gauss_r10_s10_dir)
+        
+    if not os.path.exists(gdisko_gauss_r10_s15_dir):
+        os.mkdir(gdisko_gauss_r10_s15_dir)
 
-if not os.path.exists(gdisko_gauss_r10_s10_dir):
-    os.mkdir(gdisko_gauss_r10_s10_dir)
-    
-if not os.path.exists(gdisko_gauss_r10_s15_dir):
-    os.mkdir(gdisko_gauss_r10_s15_dir)
+    masks_str = ""
+    masks_list_dir = os.listdir(maskDir)
+    for mask in masks_list_dir:
+        masks_str += mask.replace(".png", "").replace(".jpg", "")
+        masks_str += " "
 
-masks_str = ""
-masks_list_dir = os.listdir(maskDir)
-for mask in masks_list_dir:
-    masks_str += mask.replace(".png", "").replace(".jpg", "")
-    masks_str += " "
-
-commands = [
-    f"./gauss/gauss {maskFiles} {flowFwdFiles} {flowBwdFiles} {frameFirst} {frameLast} {len(masks_list_dir)} {masks_str} 10 10 {gdisko_gauss_r10_s10_files}",
-    f"./gauss/gauss {maskFiles} {flowFwdFiles} {flowBwdFiles} {frameFirst} {frameLast} {len(masks_list_dir)} {masks_str} 10 15 {gdisko_gauss_r10_s15_files}"
-]
+    commands = [
+        f"./gauss/gauss {maskFiles} {flowFwdFiles} {flowBwdFiles} {frameFirst} {frameLast} {len(masks_list_dir)} {masks_str} 10 10 {gdisko_gauss_r10_s10_files}",
+        f"./gauss/gauss {maskFiles} {flowFwdFiles} {flowBwdFiles} {frameFirst} {frameLast} {len(masks_list_dir)} {masks_str} 10 15 {gdisko_gauss_r10_s15_files}"
+    ]
+    return commands
 
 if __name__ == "__main__":
+    commands = create_commands()
     os.system(commands[0])
     os.system(commands[1])
