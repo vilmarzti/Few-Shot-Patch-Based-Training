@@ -8,7 +8,7 @@ def loop(threshold, s):
     t = 1.0
     threshold /= 100.0
 
-    while(t > threshold):
+    while(True):
         # create commands with new set of gauss images
         commands = tool_gauss.create_commands()
 
@@ -25,6 +25,10 @@ def loop(threshold, s):
 
         # count the number of black pixels
         image_name, t = count_black.go_through_images(gauss_dir)
+
+        # exit if threshold is small enough
+        if(t < threshold):
+            break
 
         # create a new gauss-mask at the position with the most black pixels
         shutil.copyfile(
