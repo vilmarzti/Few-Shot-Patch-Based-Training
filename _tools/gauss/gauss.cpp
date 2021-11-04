@@ -159,55 +159,61 @@ int main(int argc,char** argv)
 
    // Thread-Pool for parallel applications
   thread_pool pool;
+  std::vector<std::vector<V2f>> generated_points(keys.size());
+
+  // generate points in parallel
+  pool.parallelize_loop(
+      0,
+      keys.size() - 1,
+      [&](const int a, const int b){
+          for(int i=a; i<b; i++){
+            const int frameKey = keys[i];
+            const A2uc M = imread<unsigned char>(spf(maskFileFormat,frameKey).c_str());
+            if (M.empty()) { printf("ERROR: failed to read mask %s\n",spf(maskFileFormat,frameKey).c_str());}  
+            generated_points[i] = genPts(M, radius);
+          }
+      }
+  );
+
+  // Get size of video
+  // assumes that masks and video frames have the same number of pixels
+  sizeO = size(imread<unsigned char>(spf(maskFileFormat, keys[0]).c_str()));
 
   for(int k=0;k<keys.size();k++)
   {
     const int frameKey = keys[k];
-    const A2uc M = imread<unsigned char>(spf(maskFileFormat,frameKey).c_str());
-    if (M.empty()) { printf("ERROR: failed to read mask %s\n",spf(maskFileFormat,frameKey).c_str()); return 1; }  
-    sizeO = size(M);
 
-    const std::vector<V2f> keyPs = genPts(M,radius);    
-    pts(k,frameKey) = keyPs;
+    pts(k, frameKey) = generated_points[k];
 
     // keep track of max pts size to fill it later with colors
-    max_pts_size = max_pts_size < keyPs.size() ? keyPs.size() : max_pts_size;
+    max_pts_size = max_pts_size < generated_points[k].size() ? generated_points[k].size() : max_pts_size;
 
-    if (frameLast>frameKey)
-    {
-        // Note that the combination of k and frame is unique for each loop
-        pool.push_task([&](const int k,const int frameKey,const std::vector<V2f> &keyPs){
-            std::vector<V2f> Ps = keyPs;
+    pool.push_task([&](const int k, const int frameKey){
+        if (frameLast>frameKey)
+        {
+            std::vector<V2f> Ps = generated_points[k];
             for(int frame=frameKey+1;frame<=frameLast;frame++)
             {
                 const A2V2f F = a2read<V2f>(spf(flowBwdFormat, frame - 1));
                 for(int i=0;i<Ps.size();i++) { Ps[i] = Ps[i] + sampleBilinear(F,Ps[i]); }      
                 pts(k,frame) = Ps;
             }
-        },
-        k,
-        frameKey,
-        keyPs
-        );
-    }
-
-    if (frameFirst<frameKey)
-    {
-        // Note that the combination of k and frame is unique for each loop
-        pool.push_task([&](const int k, const int framekey, const std::vector<V2f> &keyPs){
-            std::vector<V2f> Ps = keyPs;
+    
+        }
+        if (frameFirst<frameKey)
+        {
+            std::vector<V2f> Ps = generated_points[k];
             for(int frame=frameKey-1;frame>=frameFirst;frame--)
             {
                 const A2V2f F = a2read<V2f>(spf(flowFwdFormat, frame + 1));
                 for(int i=0;i<Ps.size();i++) { Ps[i] = Ps[i] + sampleBilinear(F,Ps[i]); }      
                 pts(k,frame) = Ps;
             }
+        }
         },
         k,
-        frameKey,
-        keyPs
-        );
-    }
+        frameKey
+    );
   }
 
   // create color scheme
@@ -220,7 +226,8 @@ int main(int argc,char** argv)
 
   // wait for computation of loops to finish
   pool.wait_for_tasks();
-  // parallel outer loop
+
+  // parallel drawing of images
   pool.parallelize_loop(
     frameFirst,
     frameLast + 1,
