@@ -33,7 +33,7 @@ def loop(threshold, s):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="""Counts the number of black pixels in images contained in input_gdisko_gauss_r10_s*
     It looks for the image with the highest number of black pixels and adds a new mask at that position. It repeats that process until a certain threshold is reached
-    This script assumes that there exists already a mask with name "0001.png". Change that name to w/e you like in the code above
+    This script assumes that there exists already a mask with name "0001.png". Change that name to w/e you like in the script.
     """)
 
     parser.add_argument("--threshold",
@@ -41,9 +41,11 @@ if __name__ == "__main__":
         required=True,
         type=float
     )
+
     parser.add_argument("-s",
         help="Whether to optimize *_s10 or *_s15",
-        default=3.0,
+        default=10,
+        type=int
     )
 
     args = parser.parse_args()
