@@ -1,1 +1,1 @@
-gcc disflow.cpp -o disflow -lopencv_core -lstdc++ -lm -I opencv-4.2.0/include/ -lopencv_video -O3
+gcc disflow.cpp -o disflow -lopencv_core -lstdc++ -lm -I opencv-4.2.0/include/ -lopencv_video -O3 -march=native -ffast-math
