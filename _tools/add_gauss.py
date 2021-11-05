@@ -1,8 +1,38 @@
 import count_black
 import tool_gauss
 import os
+import glob
 import shutil
 import argparse
+
+# the input folder name where we look up the names of the respective inputs
+# this should be in your "*_train" folder besides the maskDir directory
+# Assumes that you have different folder for the gauss masks and the input masks
+input_folder_name = "input_filtered"
+
+def copy_masks_to_gauss(s):
+    input_path = "input_gdisko_gauss_r10_s10" if s== 10 else "input_gdisko_gauss_r10_s15"
+    mask_source_path = tool_gauss.gdisko_gauss_r10_s10_dir if s == 10 else tool_gauss.gdisko_gauss_r10_s15_dir
+
+    # get train_path 
+    # assumes that maskDir is in *_train
+    train_path = os.path.dirname(tool_gauss.maskDir)
+    train_masks_path = os.path.join(train_path, input_path)
+
+    # create folder for training_masks if it does not exists
+    if not os.path.exists(train_masks_path):
+        os.mkdir(train_masks_path)
+
+    # clear previous masks
+    previous_masks = os.path.join(train_masks_path, "*.png")
+    file_list = glob.glob(previous_masks)
+    for f in file_list:
+        os.remove(f)
+    
+    # copy masks to desired folder
+    input_filenames = map(os.path.basename, glob.glob(os.path.join(train_path, input_folder_name, "*.png")))
+    for file in input_filenames:
+        shutil.copy(os.path.join(mask_source_path, file), os.path.join(train_masks_path, file))
 
 def loop(threshold, s):
     t = 1.0
@@ -27,7 +57,9 @@ def loop(threshold, s):
         image_name, t = count_black.go_through_images(gauss_dir)
 
         # exit if threshold is small enough
+        # copy masks into train folder and exit
         if(t < threshold):
+            copy_masks_to_gauss(s)
             break
 
         # create a new gauss-mask at the position with the most black pixels

@@ -15,7 +15,6 @@ def count_pixels(image_path):
     num_black = image.size - cv2.countNonZero(image)
     return num_black / image.size
 
-
 def go_through_images(folder_path):
     # Get image paths
     image_names = [f for f in os.listdir(folder_path) if path.isfile(path.join(folder_path, f))]
