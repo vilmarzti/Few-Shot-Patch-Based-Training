@@ -43,7 +43,7 @@ if __name__ == "__main__":
     This script assumes that there exists already a mask with name "0001.png". Change that name to w/e you like in the script.
     """)
 
-    parser.add_argument("--threshold",
+    parser.add_argument("--threshold", "-t",
         help="The threshold when to stop in percent",
         required=True,
         type=float

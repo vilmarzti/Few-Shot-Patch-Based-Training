@@ -1,1 +1,1 @@
-gcc main_BilateralAdv.cpp -o bilateralAdv -O3 -lm -lstdc++
+gcc main_BilateralAdv.cpp -o bilateralAdv -O3 -lm -lstdc++ -ffast-math -march=native
