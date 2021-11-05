@@ -28,10 +28,12 @@ def go_through_images(folder_path):
 
     # Get statistics
     max_black = np.argmax(num_blacks)
-    print(image_names[max_black])
+    print("The image with the most black pixels: " +image_names[max_black])
+    print(f"Percentage of maximum number of pixels: {num_blacks[max_black]*100:.1f}")
 
     # Output statistics
-    plt.plot(num_blacks)
+    plt.plot(num_blacks, label="before " + image_names[max_black])
+    plt.legend()
     plt.savefig("num_black.png")
     return image_names[max_black], num_blacks[max_black]
 
