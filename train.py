@@ -40,7 +40,12 @@ if __name__ == "__main__":
     parser.add_argument('--log_folder', '-l', help='Log folder', required=True)
     parser.add_argument('--data_root', '-r', help='Data root folder', required=True)
     parser.add_argument('--log_interval', '-i', type=int, help='Log interval', required=True)
+    parser.add_argument('--checkpoint_gen', '-cg', help="Load generator")
+    parser.add_argument('--checkpoint_dis', '-cd', help="Load discriminator")
     args = parser.parse_args()
+
+    if(bool(args.checkpoint_gen) ^ bool(args.checkpoint_dis)):
+        parser.error("Checkpoint for generator and discriminator have to be both present")
 
     args_log_folder = args.data_root + "/" + args.log_folder
 
@@ -77,13 +82,15 @@ if __name__ == "__main__":
     print(d)
 
     generator = build_model(config['generator']['type'], config['generator']['args'], device)
-    #generator = (torch.load(args.data_root + "/model_00300_style2.pth", map_location=lambda storage, loc: storage)).to(device)
+    if(args.checkpoint_gen):
+        generator = (torch.load(args.checkpoint_gen, map_location=lambda storage, loc: storage)).to(device)
     opt_generator = build_optimizer(config['opt_generator']['type'], generator, config['opt_generator']['args'])
 
     discriminator, opt_discriminator = None, None
     if 'discriminator' in config:
         discriminator = build_model(config['discriminator']['type'], config['discriminator']['args'], device)
-        #discriminator = (torch.load(args.data_root + "/disc_00300_style2.pth", map_location=lambda storage, loc: storage)).to(device)
+        if(args.checkpoint_dis):
+            discriminator = (torch.load(args.checkpoint_dis, map_location=lambda storage, loc: storage)).to(device)
         opt_discriminator = build_optimizer(config['opt_discriminator']['type'], discriminator, config['opt_discriminator']['args'])
 
     if 'type' not in d:
