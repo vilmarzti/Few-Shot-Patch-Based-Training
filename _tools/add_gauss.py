@@ -4,6 +4,9 @@ import os
 import glob
 import shutil
 import argparse
+import config
+
+import numpy as np
 
 # the input folder name where we look up the names of the respective inputs
 # this should be in your "*_train" folder besides the maskDir directory
@@ -12,13 +15,13 @@ input_folder_name = "input_filtered"
 
 def copy_file(image_name):
         shutil.copyfile(
-        os.path.join(tool_gauss.maskDir, "0001.png"),
-        os.path.join(tool_gauss.maskDir, image_name)
+        os.path.join(config.maskDir, "0001.png"),
+        os.path.join(config.maskDir, image_name)
     )
 
 def copy_masks_to_gauss(s):
     input_path = "input_gdisko_gauss_r10_s10" if s== 10 else "input_gdisko_gauss_r10_s15"
-    mask_source_path = tool_gauss.gdisko_gauss_r10_s10_dir if s == 10 else tool_gauss.gdisko_gauss_r10_s15_dir
+    mask_source_path = config.gdisko_gauss_r10_s10_dir if s == 10 else config.gdisko_gauss_r10_s15_dir
 
     # get train_path 
     # assumes that maskDir is in *_train
@@ -40,7 +43,7 @@ def copy_masks_to_gauss(s):
     for file in input_filenames:
         shutil.copy(os.path.join(mask_source_path, file), os.path.join(train_masks_path, file))
 
-def loop(threshold, s, copy_function=copy_file):
+def loop(threshold, s, copy_function=copy_file, individual_zero=None):
     t = 1.0
     threshold /= 100.0
 
@@ -51,16 +54,26 @@ def loop(threshold, s, copy_function=copy_file):
         # either s10 or s15
         if(s==10):
             command = commands[0]
-            gauss_dir = tool_gauss.gdisko_gauss_r10_s10_dir
+            gauss_dir = config.gdisko_gauss_r10_s10_dir
         else:
             command = commands[1]
-            gauss_dir = tool_gauss.gdisko_gauss_r10_s15_dir
+            gauss_dir = config.gdisko_gauss_r10_s15_dir
 
         # compute the gauss images
         os.system(command)
 
         # count the number of black pixels
-        image_name, t = count_black.go_through_images(gauss_dir)
+        # adjust them to the mask size if provided
+        if individual_zero is not None:
+            image_paths = count_black.get_image_paths(gauss_dir)
+            num_black = [count_black.count_pixels(p) for p in image_paths]
+            adjusted_black = np.array(num_black) - np.array(individual_zero)
+            adjusted_black = [max(0, b) for b in adjusted_black] 
+            highest_index = np.argmax(adjusted_black)
+            image_name = image_paths[highest_index]
+            t = adjusted_black[highest_index]
+        else:
+            image_name, t = count_black.go_through_images(gauss_dir)
 
         # exit if threshold is small enough
         # copy masks into train folder and exit

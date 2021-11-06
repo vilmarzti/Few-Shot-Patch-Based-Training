@@ -6,6 +6,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import multiprocessing as mp
 
+import config
+
 cores = mp.cpu_count()
 
 
@@ -15,11 +17,17 @@ def count_pixels(image_path):
     num_black = image.size - cv2.countNonZero(image)
     return num_black / image.size
 
-def go_through_images(folder_path):
+def get_image_paths(folder_path):
     # Get image paths
     image_names = [f for f in os.listdir(folder_path) if path.isfile(path.join(folder_path, f))]
     image_names.sort()
     image_paths = [path.join(folder_path, f) for f in image_names]
+    image_paths = image_paths[int(config.frameFirst) - 1: int(config.frameLast) + 1]
+    return image_paths
+
+def go_through_images(folder_path):
+    image_paths = get_image_paths(folder_path)
+    image_names = [path.basename(p) for p in image_paths]
 
     # Count black pixels in images
     pool = mp.Pool(cores)
