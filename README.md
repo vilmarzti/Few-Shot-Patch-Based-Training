@@ -137,7 +137,7 @@ Once `disflow.exe` is built and present in the PATH, see and modify the first fe
 Once, the optical flow is computed, use `_tools/gauss` to compute auxiliary gaussian mixture images.
 See section **Build gauss** below on how to build the tool.
 Once `gauss.exe` is built and present in the PATH, see and modify the first few lines of 
-`_tools/tool_gauss.py`, and run it. It reads mask images from the `mask` folder 
+`_tools/config.py`, and run it. It reads mask images from the `mask` folder 
 (these masks can but do not need to match the masks you use during training, 
 see the section below for more info), and optical flow data 
 from the `flow_fwd` and `flow_bwd`; it outputs two different gaussian mixtures in 

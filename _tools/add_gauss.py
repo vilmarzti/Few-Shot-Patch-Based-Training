@@ -25,7 +25,7 @@ def copy_masks_to_gauss(s):
 
     # get train_path 
     # assumes that maskDir is in *_train
-    train_path = os.path.dirname(tool_gauss.maskDir)
+    train_path = os.path.dirname(config.maskDir)
     train_masks_path = os.path.join(train_path, input_path)
 
     # create folder for training_masks if it does not exists
@@ -64,16 +64,7 @@ def loop(threshold, s, copy_function=copy_file, individual_zero=None):
 
         # count the number of black pixels
         # adjust them to the mask size if provided
-        if individual_zero is not None:
-            image_paths = count_black.get_image_paths(gauss_dir)
-            num_black = [count_black.count_pixels(p) for p in image_paths]
-            adjusted_black = np.array(num_black) - np.array(individual_zero)
-            adjusted_black = [max(0, b) for b in adjusted_black] 
-            highest_index = np.argmax(adjusted_black)
-            image_name = image_paths[highest_index]
-            t = adjusted_black[highest_index]
-        else:
-            image_name, t = count_black.go_through_images(gauss_dir)
+        image_name, t = count_black.go_through_images(gauss_dir, individual_zero)
 
         # exit if threshold is small enough
         # copy masks into train folder and exit

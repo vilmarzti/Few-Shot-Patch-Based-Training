@@ -25,13 +25,31 @@ def get_image_paths(folder_path):
     image_paths = image_paths[int(config.frameFirst) - 1: int(config.frameLast) + 1]
     return image_paths
 
-def go_through_images(folder_path):
+def count_pixels_masked(image_path):
+    mask_path = path.join(config.maskDir, path.basename(image_path))
+    mask = cv2.imread(mask_path, cv2.IMREAD_UNCHANGED)
+    image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
+    image = cv2.bitwise_and(image, image, mask=mask)
+    breakpoint()
+    num_black = image.size - cv2.countNonZero(image)
+    return num_black / image.size
+
+def go_through_images(folder_path, pixel_adjust=False):
     image_paths = get_image_paths(folder_path)
     image_names = [path.basename(p) for p in image_paths]
 
     # Count black pixels in images
     pool = mp.Pool(cores)
-    num_blacks = pool.map(count_pixels, image_paths)
+
+    # Individually adjust pixel sizes
+    if pixel_adjust:
+        #num_blacks = pool.map(count_pixels_masked, image_paths)
+        num_blacks = list(map(count_pixels_masked, image_paths))
+        num_blacks = np.array(num_blacks) - np.array(pixel_adjust)
+        num_blacks = [max(0, b) for b in num_blacks]
+    # Don't adjust is equivalent to full mask
+    else:
+        num_blacks = pool.map(count_pixels, image_paths)
 
     # Get statistics
     max_black = np.argmax(num_blacks)
