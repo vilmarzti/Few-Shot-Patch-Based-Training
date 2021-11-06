@@ -10,6 +10,12 @@ import argparse
 # Assumes that you have different folder for the gauss masks and the input masks
 input_folder_name = "input_filtered"
 
+def copy_file(image_name):
+        shutil.copyfile(
+        os.path.join(tool_gauss.maskDir, "0001.png"),
+        os.path.join(tool_gauss.maskDir, image_name)
+    )
+
 def copy_masks_to_gauss(s):
     input_path = "input_gdisko_gauss_r10_s10" if s== 10 else "input_gdisko_gauss_r10_s15"
     mask_source_path = tool_gauss.gdisko_gauss_r10_s10_dir if s == 10 else tool_gauss.gdisko_gauss_r10_s15_dir
@@ -34,7 +40,7 @@ def copy_masks_to_gauss(s):
     for file in input_filenames:
         shutil.copy(os.path.join(mask_source_path, file), os.path.join(train_masks_path, file))
 
-def loop(threshold, s):
+def loop(threshold, s, copy_function=copy_file):
     t = 1.0
     threshold /= 100.0
 
@@ -63,10 +69,7 @@ def loop(threshold, s):
             break
 
         # create a new gauss-mask at the position with the most black pixels
-        shutil.copyfile(
-            os.path.join(tool_gauss.maskDir, "0001.png"),
-            os.path.join(tool_gauss.maskDir, image_name)
-        )
+        copy_function(image_name)
 
 
 if __name__ == "__main__":
