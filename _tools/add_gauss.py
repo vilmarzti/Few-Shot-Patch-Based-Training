@@ -41,7 +41,9 @@ def copy_masks_to_gauss(s):
     # copy masks to desired folder
     input_filenames = map(os.path.basename, glob.glob(os.path.join(train_path, input_folder_name, "*.png")))
     for file in input_filenames:
-        shutil.copy(os.path.join(mask_source_path, file), os.path.join(train_masks_path, file))
+        source_mask_path = os.path.join(mask_source_path, file)
+        if os.path.isfile(source_mask_path):
+            shutil.copy(source_mask_path, os.path.join(train_masks_path, file))
 
 def loop(threshold, s, copy_function=copy_file, individual_zero=None):
     t = 1.0

@@ -27,10 +27,15 @@ def get_image_paths(folder_path):
 
 def count_pixels_masked(image_path):
     mask_path = path.join(config.maskDir, path.basename(image_path))
+
+    # Read image and mask
     mask = cv2.imread(mask_path, cv2.IMREAD_UNCHANGED)
     image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
+
+    # Mask image
     image = cv2.bitwise_and(image, image, mask=mask)
-    breakpoint()
+
+    # Count nonZero
     num_black = image.size - cv2.countNonZero(image)
     return num_black / image.size
 
