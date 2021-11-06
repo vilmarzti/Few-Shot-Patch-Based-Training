@@ -11,3 +11,6 @@ gdisko_gauss_r10_s10_dir = data_folder + "bf_gen/input_gdisko_gauss_r10_s10"    
 gdisko_gauss_r10_s15_dir = data_folder + "bf_gen/input_gdisko_gauss_r10_s15"    # path to the result gauss r10 s15 sequence
 gdisko_gauss_r10_s10_files = gdisko_gauss_r10_s10_dir + "/" + inputFileFormat + ".png" 
 gdisko_gauss_r10_s15_files = gdisko_gauss_r10_s15_dir + "/" + inputFileFormat + ".png" 
+imageFormat   = "../TEST_DATA/bf_gen/input/" + inputFileFormat + ".png"
+frameStep = +1
+bilateralOutputFormat  = "../TEST_DATA/bf_gen/input_filtered/" + inputFileFormat + ".png"  # path to the result filtered sequence

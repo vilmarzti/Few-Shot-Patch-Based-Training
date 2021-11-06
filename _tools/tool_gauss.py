@@ -1,7 +1,6 @@
 import os
 import config
 
-
 def create_commands():
     if not os.path.exists(config.gdisko_gauss_r10_s10_dir):
         os.mkdir(config.gdisko_gauss_r10_s10_dir)
