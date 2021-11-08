@@ -38,18 +38,21 @@ def copy_masks_to_gauss(s):
     for f in file_list:
         os.remove(f)
     
-    # copy masks to desired folder
+    # copy masks to train folder
     input_filenames = map(os.path.basename, glob.glob(os.path.join(train_path, input_folder_name, "*.png")))
     for file in input_filenames:
         source_mask_path = os.path.join(mask_source_path, file)
         if os.path.isfile(source_mask_path):
             shutil.copy(source_mask_path, os.path.join(train_masks_path, file))
 
-def loop(threshold, s, copy_function=copy_file, individual_zero=None):
+def loop(threshold, s, copy_function=copy_file, individual_zero=None, iterations=None):
     t = 1.0
     threshold /= 100.0
-
+    step = 0
     while(True):
+        if iterations is not None and step >= iterations:
+            break
+
         # create commands with new set of gauss images
         commands = tool_gauss.create_commands()
 
@@ -70,12 +73,13 @@ def loop(threshold, s, copy_function=copy_file, individual_zero=None):
 
         # exit if threshold is small enough
         # copy masks into train folder and exit
-        if(t < threshold):
+        if(t < threshold) and iterations is not None:
             copy_masks_to_gauss(s)
             break
 
         # create a new gauss-mask at the position with the most black pixels
         copy_function(image_name)
+        step += 1
 
 
 if __name__ == "__main__":
@@ -96,5 +100,9 @@ if __name__ == "__main__":
         type=int
     )
 
+    parser.add_argument("--iterations", "-i",
+        type=int
+    )
+
     args = parser.parse_args()
-    loop(args.threshold, args.s)
+    loop(args.threshold, args.s, iterations=args.iterations)
