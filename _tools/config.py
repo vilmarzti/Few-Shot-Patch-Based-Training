@@ -24,7 +24,7 @@ gdisko_gauss_r10_s10_files = path.join(gdisko_gauss_r10_s10_dir, inputPNG)
 gdisko_gauss_r10_s15_files = path.join(gdisko_gauss_r10_s15_dir, inputPNG) 
 
 imageFormat   = path.join(data_folder, "bf_gen/input_gamma/", inputPNG)
-bilateralOutputFormat  = path.join(data_folder, "bf_gen/input_filtered/", inputPNG)  # path to the result filtered sequence
+outputFormat  = path.join(data_folder, "bf_gen/input_filtered/", inputPNG)  # path to the result filtered sequence
 
 tools_path = "Few-Shot-Patch-Based-Training/_tools/"
 

@@ -15,8 +15,8 @@ def create_commands():
         masks_str += " "
 
     commands = [
-        f"./gauss/gauss {config.maskFiles} {config.flowFwdFiles} {config.flowBwdFiles} {config.frameFirst} {config.frameLast} {len(masks_list_dir)} {masks_str} 10 10 {config.gdisko_gauss_r10_s10_files}",
-        f"./gauss/gauss {config.maskFiles} {config.flowFwdFiles} {config.flowBwdFiles} {config.frameFirst} {config.frameLast} {len(masks_list_dir)} {masks_str} 10 15 {config.gdisko_gauss_r10_s15_files}"
+        f"{config.gaussExecutable} {config.maskFiles} {config.flowFwdFiles} {config.flowBwdFiles} {config.frameFirst} {config.frameLast} {len(masks_list_dir)} {masks_str} 10 10 {config.gdisko_gauss_r10_s10_files}",
+        f"{config.gaussExecutable} {config.maskFiles} {config.flowFwdFiles} {config.flowBwdFiles} {config.frameFirst} {config.frameLast} {len(masks_list_dir)} {masks_str} 10 15 {config.gdisko_gauss_r10_s15_files}"
     ]
     return commands
 

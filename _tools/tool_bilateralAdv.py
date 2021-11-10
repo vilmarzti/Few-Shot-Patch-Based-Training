@@ -5,7 +5,7 @@ import config
 os.makedirs(os.path.dirname(config.outputFormat),exist_ok=True)
 
 def create_command(frame):
-  return "./bilateralAdv/bilateralAdv "+ config.imageFormat+" " + config.flowFwdFiles+" " + config.flowBwdFiles+(" %d "%(frame))+" 15 16 "+(outputFormat%(frame))
+  return config.bilateralExecutable + " " + config.imageFormat+" " + config.flowFwdFiles+" " + config.flowBwdFiles+(" %d "%(frame))+" 15 16 "+(config.outputFormat%(frame))
 
 firstFrame = int(config.frameFirst)
 lastFrame= int(config.frameLast)
