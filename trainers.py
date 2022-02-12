@@ -153,7 +153,7 @@ class Trainer(object):
                     self.test_on_full_image(generator, batch_num, data_root, config_yaml_name)
                     self.flush_scalar_log(batch_num, time.time() - start)
                     self.model_logger.save(generator, save_num, True)
-                    #self.model_logger.save(discriminator, save_num, False)
+                    self.model_logger.save(discriminator, save_num, False)
                     save_num += 1
                     print(f"Eval of batch: {batch_num} took {(time.time() - eval_start)}", flush=True)
 
@@ -191,7 +191,7 @@ class Trainer(object):
         if self.dataset is None:
             self.dataset = DatasetFullImages(data_root + "/" + self.data_for_dataloader['dir_pre'].split("/")[-1],
                                     "ignore",  # data_root + "/" + "ebsynth",
-                                    "ignore",  # data_root + "/" + "mask",
+                                    "ignore",  #data_root + "/" + "mask"
                                     self.device,
                                     dir_x1=data_root + "/" + self.data_for_dataloader['dir_x1'].split("/")[-1] if self.data_for_dataloader['dir_x1'] is not None else None,
                                     dir_x2=data_root + "/" + self.data_for_dataloader['dir_x2'].split("/")[-1] if self.data_for_dataloader['dir_x2'] is not None else None,
