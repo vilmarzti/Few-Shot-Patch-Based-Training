@@ -15,9 +15,9 @@ if not os.path.exists(config.flowBwdDir):
 
 def create_commands(frame, fwd=True):
   if fwd:
-    command = command_string % (config.imageFormat%(frame), config.imageFormat % (frame-frameStep), config.flowFwdFiles % (frame)) 
+    command = command_string % (config.outputFormat%(frame), config.outputFormat % (frame-frameStep), config.flowFwdFiles % (frame)) 
   else:
-    command = command_string % (config.imageFormat%(frame), config.imageFormat % (frame-frameStep), config.flowBwdFiles%(frame)) 
+    command = command_string % (config.outputFormat%(frame), config.outputFormat % (frame-frameStep), config.flowBwdFiles%(frame)) 
   return command
 
 pool = mp.Pool()
