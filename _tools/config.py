@@ -1,6 +1,6 @@
 from os import path
 
-data_folder = "/home/martin/Videos/ondrej_et_al/bf/"
+data_folder = "/home/martin/Videos/ondrej_et_al/dreaming/part_1"
 inputFileFormat = "%04d"    # name of input files, e.g., %03d if files are named 001.png, 002.png
 generation_folder = "video"
 
@@ -16,7 +16,7 @@ flowFwdFiles = path.join(flowFwdDir, inputFileFormat + ".A2V2f")  # path to the 
 flowBwdFiles = path.join(flowBwdDir, inputFileFormat + ".A2V2f")  # path to the backward flow files (computed by _tools/disflow)
 
 frameFirst = "0001"                  # name of the first PNG file in the input folder (without extension)
-frameLast = "0400"                   # number of the last PNG file in the input folder (without extension)
+frameLast = "0277"                   # number of the last PNG file in the input folder (without extension)
 frameStep = +1
 
 gdisko_gauss_r10_s10_dir = path.join(data_folder,generation_folder, "input_gdisko_gauss_r10_s10")    # path to the result gauss r10 s10 sequence
@@ -24,7 +24,7 @@ gdisko_gauss_r10_s15_dir = path.join(data_folder,generation_folder, "input_gdisk
 gdisko_gauss_r10_s10_files = path.join(gdisko_gauss_r10_s10_dir, inputPNG)
 gdisko_gauss_r10_s15_files = path.join(gdisko_gauss_r10_s15_dir, inputPNG) 
 
-imageFormat   = path.join(data_folder, generation_folder, "input_filtered/", inputPNG)
+imageFormat   = path.join(data_folder, generation_folder, "input/", inputPNG)
 outputFormat  = path.join(data_folder, generation_folder, "input_filtered/", inputPNG)  # path to the result filtered sequence
 
 tools_path = "Few-Shot-Patch-Based-Training/_tools/"
