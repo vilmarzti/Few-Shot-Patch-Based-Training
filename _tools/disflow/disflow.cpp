@@ -28,7 +28,7 @@ static cv::Mat_<unsigned char> a2f_to_mat8(const A2f& I)
     for(int y=0;y<mat.rows;y++)
     for(int x=0;x<mat.cols;x++)
     {
-        mat(y,x) = clamp(I(x,y),0.0f,1.0f)*255.0f;
+        mat(y, x) = std::min(std::max(I(x,y),0.0f),1.0f)*255.0f;
     }
 
     return mat;  
